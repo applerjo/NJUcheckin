@@ -8,6 +8,8 @@ import requests
 import execjs
 from http.cookiejar import CookieJar
 from bs4 import BeautifulSoup
+import random
+import time
 
 JSFILE = "encrypt.js"
 USERNAME = os.getenv("USERNAME")
@@ -123,6 +125,7 @@ class Njuer:
         return 0
 
 if __name__ == "__main__":
+    time.sleep(random.random()*1000)
     if not USERNAME or not PASSWORD:
         print("请正确配置用户名和密码！")
         sys.exit()
