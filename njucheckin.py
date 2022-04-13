@@ -108,25 +108,30 @@ class Njuer:
         wid = resJson['data'][0]['WID']
         hisLoc = resJson['data'][1]["CURR_LOCATION"]
         lastJCSJ = resJson['data'][1]["ZJHSJCSJ"]
-        return {'hisLoc': hisLoc, 'wid': wid, 'lastJCSJ': lastJCSJ}
+        today = resJson['data'][0]['TBZT'] == '1'
+        return {'hisLoc': hisLoc, 'wid': wid, 'lastJCSJ': lastJCSJ, 'today': today }
 
     def checkin(self):
         info = '&IS_TWZC=1&IS_HAS_JKQK=1&JRSKMYS=1&JZRJRSKMYS=1&SFZJLN=0&ZJHSJCSJ={hs_time}'  # 分别对应四个单选框的值
         link = 'http://ehallapp.nju.edu.cn/xgfw/sys/yqfxmrjkdkappnju/apply/saveApplyInfos.do?WID={wid}&CURR_LOCATION={curr_location}'
         hisInfo = self.getCheckInfo()
-        info = info.format(hs_time=str(hisInfo['lastJCSJ']))
-        link = link.format(wid=str(hisInfo['wid']), curr_location=str(hisInfo['hisLoc']) + info)
-        res = self.session.get(link)
-        res = json.loads(res.text)
-        if res['code'] == '0':
-            if res['msg'] == '成功':
-                f = open("email.txt", "w")
-                f.write("打卡成功！")
-                print("打卡成功！")
-                f.close()
-                return 1
-        notify('打卡失败')
-        print("打卡失败")
+        if hisInfo['today']:
+            notify('今日已打卡')
+            print("今日已打卡")
+        else:
+            info = info.format(hs_time=str(hisInfo['lastJCSJ']))
+            link = link.format(wid=str(hisInfo['wid']), curr_location=str(hisInfo['hisLoc']) + info)
+            res = self.session.get(link)
+            res = json.loads(res.text)
+            if res['code'] == '0':
+                if res['msg'] == '成功':
+                    f = open("email.txt", "w")
+                    f.write("打卡成功！")
+                    print("打卡成功！")
+                    f.close()
+                    return 1
+            notify('打卡失败')
+            print("打卡失败")
         return 0
 
 
